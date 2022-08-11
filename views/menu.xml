@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_jobsite"
+        name="Jobsite"
+        web_icon="jobsites,static/description/icon.png"
+        sequence="0"/>
+
+    <menuitem id="menu_jobsite_sites"
+        name="Jobsite"
+        parent="menu_jobsite"
+        sequence="0"/>
+
+</odoo>

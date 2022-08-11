@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+		<record id="view_jobsite_tree" model="ir.ui.view">
+			<field name="model">jobsite</field>
+			<field name="name">jobsite.tree</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+					<field name="siteteam"/>
+				</tree>
+			</field>
+		</record>
+
+		<record id="jobsite_all_tree_view" model="ir.actions.act_window.view">
+			<field name="sequence" eval="0"/>
+			<field name="view_mode">tree</field>
+			<field name="view_id" ref="view_jobsite_tree"/>
+			<field name="act_window_id" ref="jobsite_listing_action"/>
+		</record>
+
+<!--	<record id="view_jobsite_map" model="ir.ui.view">-->
+<!--			<field name="model">jobsite</field>-->
+<!--			<field name="name">jobsite.map</field>-->
+<!--			<field name="arch" type="xml">-->
+<!--				<map jobsite="id"/>-->
+<!--			</field>-->
+<!--		</record>-->
+
+		<record id="view_jobsite_create_form" model="ir.ui.view">
+			<field name="model">jobsite</field>
+			<field name="name">jobsite.form</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+						<div class="oe_button_box" name="button_box">
+						</div>
+						<group>
+							<field name="active" invisible="1"/>
+							<field name="status" invisible="1"/>
+							<field name="country_code" invisible="1"/>
+
+							<group>
+								<field name="name"/>
+								<field name="siteteam"/>
+								<field name="note"/>
+								<field name="stage_id"/>
+								<field name="status"/>
+								<field name="vl_date"/>
+								<field name="godown_ids" />
+								<field name="user_id" position="attributes">
+									<attribute name="options">{'no_create_edit': True, 'no_create': True}</attribute>
+								</field>
+							</group>
+
+							<group>
+								<label for="street" string="Address"/>
+								<div class="o_address_format">
+									<field name="street" placeholder="Street..." class="o_address_street"/>
+									<field name="street2" placeholder="Street 2..." class="o_address_street"/>
+									<field name="city" placeholder="City" class="o_address_city"/>
+									<field name="state_id" class="o_address_state" placeholder="State" options="{'no_open': True, 'no_create': True}" context="{'default_country_id': country_id}"/>
+									<field name="zip" placeholder="ZIP" class="o_address_zip"/>
+									<field name="country_id" placeholder="Country" class="o_address_country" options='{"no_open": True, "no_create": True}'/>
+								</div>
+
+								<label for="latitude" string="Coordinates"/>
+								<div>
+									<span>Lat : </span>
+									<field name="latitude" nolabel="1" class="oe_inline"/>
+									<span>, Long: </span>
+									<field name="longitude" nolabel="1" class="oe_inline"/>
+									<br/>
+									<span class="oe_inline">
+										<button
+											string="(refresh)"
+											name="geo_localize"
+											class="btn btn-link"
+											type="object"/>
+										<field name="marker_color" invisible="1"/>
+									</span>
+								</div>
+							</group>
+
+						</group>
+
+					</sheet>
+					<div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids" options="{'post_refresh': 'recipients'}"/>
+                    </div>
+				</form>
+			</field>
+		</record>
+
+		<record id="view_jobsite_search" model="ir.ui.view">
+			<field name="model">jobsite</field>
+			<field name="name">jobsite.search</field>
+			<field name="arch" type="xml">
+				<search>
+					<field name="name" filter_domain="[('name', 'ilike', self)]"></field>
+					<filter name="filter_IW" string="IWM" domain="[('siteteam', '=', 'IWM')]"></filter>
+					<filter name="filter_T" string="Transport" domain="[('siteteam', '=', 'T')]"></filter>
+					<filter name="filter_FR" string="FR" domain="[('siteteam', '=', 'FR')]"></filter>
+					<filter name="filter_General" string="General" domain="[('siteteam', '=', 'General')]"></filter>
+<!--					<filter name="filter_BF" string="B&ampF" domain="[('siteteam', '=', 'B&ampF')]"></filter>-->
+					<separator/>
+					<filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"></filter>
+					<group expand="0" string="Group By">
+						<filter string="Team" name="group_by_type" context="{'group_by':'siteteam'}"></filter>
+						<filter string="Status" name="group_by_status" context="{'group_by':'siteteam'}"></filter>
+					</group>
+				</search>
+			</field>
+		</record>
+
+
+
+</odoo>

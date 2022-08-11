@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="view_crm_lead_inherit" model="ir.ui.view">
+            <field name="name">crm.lead.inherit</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+            <field name="arch" type="xml">
+                <field name="function" position="after">
+                    <field name="site_id" attrs="{'no_create_edit': True, 'no_create': True,'invisible': [('type','=', 'opportunity')]}"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

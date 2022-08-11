@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="jobsite_listing_action" model="ir.actions.act_window">
+        <field name="name">Jobsites</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">jobsite</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create Jobsites!!
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_jobsite_details"
+        name="Jobsites"
+        action="jobsite_listing_action"
+        parent="menu_jobsite_sites"
+        sequence="0"/>
+
+</odoo>

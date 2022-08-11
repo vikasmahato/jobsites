@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+jobsites.access_jobsite,access_jobsite,jobsites.model_jobsite,base.group_user,1,1,1,1
+jobsites.access_jobsite_stage,access_jobsite_stage,jobsites.model_jobsite_stage,base.group_user,1,1,1,1
+jobsites.access_jobsite_godown,access_jobsite_godown,jobsites.model_jobsite_godown,base.group_user,1,1,1,1
