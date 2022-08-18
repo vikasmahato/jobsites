@@ -38,12 +38,10 @@
 						<group>
 							<field name="active" invisible="1"/>
 							<field name="status" invisible="1"/>
-							<field name="country_code" invisible="1"/>
 
 							<group>
 								<field name="name"/>
 								<field name="siteteam"/>
-								<field name="note"/>
 								<field name="stage_id"/>
 								<field name="status"/>
 								<field name="vl_date"/>
@@ -57,28 +55,20 @@
 								<label for="street" string="Address"/>
 								<div class="o_address_format">
 									<field name="street" placeholder="Street..." class="o_address_street"/>
-									<field name="street2" placeholder="Street 2..." class="o_address_street"/>
+									<field name="street2" widget="gplaces_address_autocomplete" placeholder="Street 2..." class="o_address_street"/>
 									<field name="city" placeholder="City" class="o_address_city"/>
 									<field name="state_id" class="o_address_state" placeholder="State" options="{'no_open': True, 'no_create': True}" context="{'default_country_id': country_id}"/>
-									<field name="zip" placeholder="ZIP" class="o_address_zip"/>
+									<field name="zip" placeholder="Pincode" class="o_address_zip"/>
 									<field name="country_id" placeholder="Country" class="o_address_country" options='{"no_open": True, "no_create": True}'/>
 								</div>
 
 								<label for="latitude" string="Coordinates"/>
 								<div>
-									<span>Lat : </span>
-									<field name="latitude" nolabel="1" class="oe_inline"/>
-									<span>, Long: </span>
+									<span>Lat <![CDATA[&nbsp;]]><![CDATA[&nbsp;]]><![CDATA[&nbsp;]]>: </span>
+									<field name="latitude" nolabel="1" class="oe_inline"/><br/>
+									<span>Long : </span>
 									<field name="longitude" nolabel="1" class="oe_inline"/>
-									<br/>
-									<span class="oe_inline">
-										<button
-											string="(refresh)"
-											name="geo_localize"
-											class="btn btn-link"
-											type="object"/>
-										<field name="marker_color" invisible="1"/>
-									</span>
+
 								</div>
 							</group>
 
@@ -115,6 +105,16 @@
 			</field>
 		</record>
 
-
+		<record id="view_jobsite_form" model="ir.ui.view">
+            <field name="name">Contacts Google Map</field>
+            <field name="model">jobsite</field>
+            <field name="inherit_id" ref="jobsites.view_jobsite_create_form"/>
+            <field name="priority">1000</field>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="attributes">
+                    <attribute name="geo_field">{'lat': 'latitude', 'lng': 'longitude'}</attribute>
+                </xpath>
+            </field>
+        </record>
 
 </odoo>

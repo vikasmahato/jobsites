@@ -4,7 +4,9 @@ from odoo import api, fields, models, _
 import requests
 import logging
 import json
+
 _logger = logging.getLogger(__name__)
+
 
 class JobsiteStage(models.Model):
     _name = 'jobsite_stage'
@@ -30,7 +32,12 @@ class Jobsite(models.Model):
         ('name_uniq', 'unique (name)', 'Jobsite Already Exists'),
     ]
 
-    siteteam = fields.Many2one(comodel_name='crm.team', string='Team')
+    @api.model
+    def _get_default_country(self):
+        country = self.env['res.country'].search([('code', '=', 'IN')], limit=1)
+        return country
+
+    siteteam = fields.Many2one(comodel_name='crm.team', string='Site Type')
     vl_date = fields.Date('VL Date', help="Visit Lead Due Date (VL Date)")
     godown_ids = fields.Many2many('jobsite.godown')
     status = fields.Selection([
@@ -39,7 +46,7 @@ class Jobsite(models.Model):
         ('Closed', 'Closed'),
     ], string="Status",
         required=True, default='Virgin')
-    note = fields.Text(string='Description')
+
     active = fields.Boolean(string='isActive', default=True, tracking=True)
 
     status = fields.Selection([
@@ -54,14 +61,13 @@ class Jobsite(models.Model):
     city = fields.Char()
     state_id = fields.Many2one("res.country.state", string='State', ondelete='restrict',
                                domain="[('country_id', '=?', country_id)]")
-    country_id = fields.Many2one('res.country', string='Country', ondelete='restrict')
-    country_code = fields.Char(related='country_id.code', string="Country Code")
+    country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', default=_get_default_country, invisible=True)
     stage_id = fields.Many2one("jobsite_stage", string="Stage")
     latitude = fields.Float(string='Geo Latitude', digits=(20, 14))
     longitude = fields.Float(string='Geo Longitude', digits=(20, 14))
     marker_color = fields.Char(string='Marker Color', default='red', required=True)
     user_id = fields.Many2one(
-        'res.users', string='Salesperson', default=lambda self: self.env.user, index=True, tracking=True)
+        'res.users', string='TD', default=lambda self: self.env.user, index=True, tracking=True)
 
     @api.model
     def _geo_localize(self, street='', zip='', city='', state='', country=''):
@@ -77,25 +83,78 @@ class Jobsite(models.Model):
             result = geo_obj.geo_find(search, force_country=country)
         return result
 
-    def geo_localize(self):
-        for lead in self.with_context(lang='en_US'):
-            result = self._geo_localize(
-                street=lead.street,
-                zip=lead.zip,
-                city=lead.city,
-                state=lead.state_id.name,
-                country=lead.country_id.name,
-            )
+    def geo_localize(self, vals):
+        country = self._get_default_country()
+        if vals['street2']:
+            address_line = vals['street'] + ", " + str(vals['street2'])
+        else:
+            address_line = vals['street']
 
-            if result:
-                lead.write(
-                    {
-                        'latitude': result[0],
-                        'longitude': result[1],
-                    }
-                )
+        result = self._geo_localize(
+            street=address_line,
+            zip=vals['zip'],
+            city=vals['city'],
+            state=False if vals['state_id'] is None else self.env['res.country.state'].search(
+                [('id', '=', vals['state_id'])], limit=1).name,
+            country=country.name
+        )
 
-        return True
+        if result:
+            return result
+        return False
+
+    @api.model
+    def sendJobsiteToBeta(self, vals):
+        try:
+            data = {
+                "site_name": vals['name'],
+                "site_address": str(vals['street'] + " " + vals['street2']),
+                "latitude": str(vals['latitude']),
+                "longitude": str(vals['longitude']),
+                "city": str(vals['city']),
+                "pincode": str(vals['zip']),
+                "td_email": str(self.env['res.users'].search([('id', 'ilike', vals['user_id'])], limit=1).email),
+                "site_type": str(self.env['crm.team'].search([('id', 'ilike', vals['siteteam'])], limit=1).name),
+                "site_stage": str(self.env['jobsite_stage'].search([('id', 'ilike', vals['stage_id'])], limit=1).name),
+                "branch_name": str(
+                    self.env['jobsite.godown'].search([('id', 'ilike', vals['godown_ids'][0][2][0])], limit=1).name)
+            }
+            request_url = "https://webhook.site/9f23c166-0e8f-48bd-bcc7-65722bebd771"
+            headers = {
+                'Content-type': 'application/json',
+            }
+            requests.post(request_url, data=json.dumps(data), headers=headers, verify=False)
+        except Exception:
+            traceback.format_exc()
+
+    def _setLatitudeLogitude(self, vals, is_update = False):
+        if is_update:
+            vals['street'] = vals['street'] if 'street' in vals else self.street
+            vals['street2'] = vals['street2'] if 'street2' in vals else self.street2
+            vals['zip'] = vals['zip'] if 'zip' in vals else self.zip
+            vals['city'] = vals['city'] if 'city' in vals else self.city
+            vals['state_id'] = vals['state_id'] if 'state_id' in vals else self.state_id.id
+
+        result = self.geo_localize(vals)
+        if result:
+            vals['latitude'] = result[0]
+            vals['longitude'] = result[1]
+        return vals
+
+    @api.model
+    def create(self, vals):
+        vals = self._setLatitudeLogitude(vals)
+        # self.sendJobsiteToBeta(vals)
+        return super(Jobsite, self).create(vals)
+
+
+    def write(self, vals):
+        #data = self._setLatitudeLogitude(vals, True)
+        # if 'street' in vals or 'street2' in vals or 'zip' in vals or 'city' in vals or 'state_id' in vals:
+        #     vals['latitude'] = data['latitude']
+        #     vals['longitude'] = data['longitude']
+        # self.sendJobsiteToBeta(data)
+        return super(Jobsite, self).write(vals)
 
     @api.onchange('zip')
     def sendToBeta(self):
@@ -117,24 +176,3 @@ class Jobsite(models.Model):
             raise self.env['res.config.settings'].get_config_warning(error_msg)
         finally:
             traceback.format_exc()
-
-
-
-    # def _send_nearest_godown(self, id):
-    #     endpoint = "https://youngmanbeta.com/nearestGodown?pincode=" + str(id)
-    #     try:
-    #         response = requests.get(endpoint, verify=False)
-    #     except requests.HTTPError:
-    #         error_msg = _("Could not fetch nearest Godown. Remote server returned status ???")
-    #         raise self.env['res.config.settings'].get_config_warning(error_msg)
-    #     except Exception as e:
-    #         error_msg = _("Some error occurred while fetching nearest Godown")
-    #         raise self.env['res.config.settings'].get_config_warning(error_msg)
-    #     finally:
-    #         traceback.format_exc()
-
-# class ResPartner(models.Model):
-#     _inherit = 'res.partner'
-#
-#     marker_color = fields.Char(
-#         string='Marker Color', default='red', required=True)
