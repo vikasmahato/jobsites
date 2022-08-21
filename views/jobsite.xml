@@ -45,7 +45,7 @@
 								<field name="stage_id"/>
 								<field name="status"/>
 								<field name="vl_date"/>
-								<field name="godown_ids" />
+								<field name="godown_id" />
 								<field name="user_id" position="attributes">
 									<attribute name="options">{'no_create_edit': True, 'no_create': True}</attribute>
 								</field>
@@ -54,8 +54,8 @@
 							<group>
 								<label for="street" string="Address"/>
 								<div class="o_address_format">
-									<field name="street" placeholder="Street..." class="o_address_street"/>
-									<field name="street2" widget="gplaces_address_autocomplete" placeholder="Street 2..." class="o_address_street"/>
+									<field name="street" widget="gplaces_address_autocomplete" placeholder="Street..." class="o_address_street"/>
+									<field name="street2" placeholder="Street 2..." class="o_address_street"/>
 									<field name="city" placeholder="City" class="o_address_city"/>
 									<field name="state_id" class="o_address_state" placeholder="State" options="{'no_open': True, 'no_create': True}" context="{'default_country_id': country_id}"/>
 									<field name="zip" placeholder="Pincode" class="o_address_zip"/>

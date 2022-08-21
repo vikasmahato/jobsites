@@ -18,7 +18,7 @@ class JobsiteGodown(models.Model):
     name = fields.Char(string="Name")
     state_code = fields.Integer(string="State Code")
     address = fields.Char(string="Godown Address")
-    jobsite_id = fields.Many2one('jobsite', string='Jobsite')
+    jobsite_id = fields.One2many('jobsite','godown_id', string='Jobsite')
     beta_id = fields.Integer()
 
 
@@ -39,7 +39,7 @@ class Jobsite(models.Model):
 
     siteteam = fields.Many2one(comodel_name='crm.team', string='Site Type')
     vl_date = fields.Date('VL Date', help="Visit Lead Due Date (VL Date)")
-    godown_ids = fields.Many2many('jobsite.godown')
+    godown_id = fields.Many2one('jobsite.godown')
     status = fields.Selection([
         ('Virgin', 'Virgin'),
         ('Active', 'Active'),
@@ -85,7 +85,7 @@ class Jobsite(models.Model):
 
     def geo_localize(self, vals):
         country = self._get_default_country()
-        if vals['street2']:
+        if 'street2' in vals:
             address_line = vals['street'] + ", " + str(vals['street2'])
         else:
             address_line = vals['street']
@@ -105,6 +105,8 @@ class Jobsite(models.Model):
 
     @api.model
     def sendJobsiteToBeta(self, vals):
+        if not self.env['ir.config_parameter'].sudo().get_param('ym_configs.save_jobsite'):
+            return
         try:
             data = {
                 "site_name": vals['name'],
@@ -117,9 +119,9 @@ class Jobsite(models.Model):
                 "site_type": str(self.env['crm.team'].search([('id', 'ilike', vals['siteteam'])], limit=1).name),
                 "site_stage": str(self.env['jobsite_stage'].search([('id', 'ilike', vals['stage_id'])], limit=1).name),
                 "branch_name": str(
-                    self.env['jobsite.godown'].search([('id', 'ilike', vals['godown_ids'][0][2][0])], limit=1).name)
+                    self.env['jobsite.godown'].search([('id', 'ilike', vals['godown_id'][0][2][0])], limit=1).name)
             }
-            request_url = "https://webhook.site/9f23c166-0e8f-48bd-bcc7-65722bebd771"
+            request_url = self.env['ir.config_parameter'].sudo().get_param('ym_configs.jobsite_endpoint')
             headers = {
                 'Content-type': 'application/json',
             }
@@ -161,10 +163,10 @@ class Jobsite(models.Model):
         if (self.zip != False):
             nearest_godown = self._get_nearest_godown(self.zip)
             godown_names = [entry['godown_name'] for entry in nearest_godown]
-            self.godown_ids = self.env['jobsite.godown'].sudo().search([('name', 'in', godown_names)])
+            self.godown_id = self.env['jobsite.godown'].sudo().search([('name', '=', godown_names[0])])
 
     def _get_nearest_godown(self, pincode):
-        endpoint = "https://youngmanbeta.com/nearestGodown?pincode=" + str(pincode)
+        endpoint = self.env['ir.config_parameter'].sudo().get_param('ym_configs.nearest_godown_endpoint') + str(pincode)
         try:
             response = requests.get(endpoint, verify=False)
             return response.json()
