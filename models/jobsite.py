@@ -55,7 +55,7 @@ class Jobsite(models.Model):
         ('2', 'VIRGIN'),
     ], string='Status')
 
-    street = fields.Char()
+    street = fields.Char(required=True)
     street2 = fields.Char()
     zip = fields.Char(change_default=True)
     city = fields.Char()
@@ -66,8 +66,15 @@ class Jobsite(models.Model):
     latitude = fields.Float(string='Geo Latitude', digits=(20, 14))
     longitude = fields.Float(string='Geo Longitude', digits=(20, 14))
     marker_color = fields.Char(string='Marker Color', default='red', required=True)
+
+    @api.onchange('siteteam')
+    def _get_domain(self):
+        if self.siteteam:
+            domain_users = [('id', 'in', self.siteteam.member_ids.ids)]
+            return {'domain': {'user_id': domain_users}}
+
     user_id = fields.Many2one(
-        'res.users', string='TD', default=lambda self: self.env.user, index=True, tracking=True)
+        'res.users', string='TD')
 
     @api.model
     def _geo_localize(self, street='', zip='', city='', state='', country=''):

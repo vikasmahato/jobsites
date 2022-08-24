@@ -45,10 +45,8 @@
 								<field name="stage_id"/>
 								<field name="status"/>
 								<field name="vl_date"/>
-								<field name="godown_id" invisible="1"/>
-								<field name="user_id" position="attributes">
-									<attribute name="options">{'no_create_edit': True, 'no_create': True}</attribute>
-								</field>
+								<field name="godown_id" force_save = "1" attrs="{'invisible': [('zip', '=', False)], 'readonly': [('zip', '!=', False)]}"/>
+								<field name="user_id" attrs="{'invisible': [('siteteam', '=', False)]}"/>
 							</group>
 
 							<group>
