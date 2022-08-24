@@ -46,7 +46,7 @@
 								<field name="status"/>
 								<field name="vl_date"/>
 								<field name="godown_id" force_save = "1" attrs="{'invisible': [('zip', '=', False)], 'readonly': [('zip', '!=', False)]}"/>
-								<field name="user_id" attrs="{'invisible': [('siteteam', '=', False)]}"/>
+								<field name="user_id" attrs="{'invisible': [('siteteam', '=', False)]}" options="{'no_create': True}"/>
 							</group>
 
 							<group>
