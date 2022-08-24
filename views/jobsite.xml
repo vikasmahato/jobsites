@@ -41,8 +41,8 @@
 
 							<group>
 								<field name="name"/>
-								<field name="siteteam"/>
-								<field name="stage_id"/>
+								<field name="siteteam" domain="[('name', 'in', ['GENERAL', 'IW', 'FR', 'B&amp;F', 'TRANSPORT'])]" options="{'no_create': True}"/>
+								<field name="stage_id" options="{'no_create': True}"/>
 								<field name="status"/>
 								<field name="vl_date"/>
 								<field name="godown_id" force_save = "1" attrs="{'invisible': [('zip', '=', False)], 'readonly': [('zip', '!=', False)]}"/>
