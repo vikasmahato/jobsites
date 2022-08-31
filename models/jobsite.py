@@ -18,7 +18,7 @@ class JobsiteGodown(models.Model):
     name = fields.Char(string="Name")
     state_code = fields.Integer(string="State Code")
     address = fields.Char(string="Godown Address")
-    jobsite_id = fields.One2many('jobsite','godown_id', string='Jobsite')
+    jobsite_id = fields.One2many('jobsite', 'godown_id', string='Jobsite')
     beta_id = fields.Integer()
 
 
@@ -61,7 +61,8 @@ class Jobsite(models.Model):
     city = fields.Char()
     state_id = fields.Many2one("res.country.state", string='State', ondelete='restrict',
                                domain="[('country_id', '=?', country_id)]")
-    country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', default=_get_default_country, invisible=True)
+    country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', default=_get_default_country,
+                                 invisible=True)
     stage_id = fields.Many2one("jobsite_stage", string="Stage")
     latitude = fields.Float(string='Geo Latitude', digits=(20, 14))
     longitude = fields.Float(string='Geo Longitude', digits=(20, 14))
@@ -116,7 +117,7 @@ class Jobsite(models.Model):
             return
 
         if vals['street2']:
-            addr=str(vals['street'] + " " + vals['street2'])
+            addr = str(vals['street'] + " " + vals['street2'])
         else:
             addr = str(vals['street'])
 
@@ -142,7 +143,7 @@ class Jobsite(models.Model):
         except Exception:
             traceback.format_exc()
 
-    def _setLatitudeLogitude(self, vals, is_update = False):
+    def _setLatitudeLogitude(self, vals, is_update=False):
         if is_update:
             vals['street'] = vals['street'] if 'street' in vals else self.street
             vals['street2'] = vals['street2'] if 'street2' in vals else self.street2
@@ -156,14 +157,15 @@ class Jobsite(models.Model):
             vals['longitude'] = result[1]
         return vals
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals):
+        _logger.info("Write")
         vals = self._setLatitudeLogitude(vals)
         self.sendJobsiteToBeta(vals)
         return super(Jobsite, self).create(vals)
 
-
     def write(self, vals):
+        _logger.info("Write")
         data = self._setLatitudeLogitude(vals, True)
         if 'street' in vals or 'street2' in vals or 'zip' in vals or 'city' in vals or 'state_id' in vals:
             vals['latitude'] = data['latitude']
