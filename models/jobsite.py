@@ -114,10 +114,16 @@ class Jobsite(models.Model):
     def sendJobsiteToBeta(self, vals):
         if not self.env['ir.config_parameter'].sudo().get_param('ym_configs.save_jobsite'):
             return
+
+        if vals['street2']:
+            addr=str(vals['street'] + " " + vals['street2'])
+        else:
+            addr = str(vals['street'])
+
         try:
             data = {
                 "site_name": vals['name'],
-                "site_address": str(vals['street'] + " " + vals['street2']),
+                "site_address": addr,
                 "latitude": str(vals['latitude']),
                 "longitude": str(vals['longitude']),
                 "city": str(vals['city']),
@@ -153,16 +159,16 @@ class Jobsite(models.Model):
     @api.model
     def create(self, vals):
         vals = self._setLatitudeLogitude(vals)
-        # self.sendJobsiteToBeta(vals)
+        self.sendJobsiteToBeta(vals)
         return super(Jobsite, self).create(vals)
 
 
     def write(self, vals):
-        #data = self._setLatitudeLogitude(vals, True)
-        # if 'street' in vals or 'street2' in vals or 'zip' in vals or 'city' in vals or 'state_id' in vals:
-        #     vals['latitude'] = data['latitude']
-        #     vals['longitude'] = data['longitude']
-        # self.sendJobsiteToBeta(data)
+        data = self._setLatitudeLogitude(vals, True)
+        if 'street' in vals or 'street2' in vals or 'zip' in vals or 'city' in vals or 'state_id' in vals:
+            vals['latitude'] = data['latitude']
+            vals['longitude'] = data['longitude']
+        self.sendJobsiteToBeta(data)
         return super(Jobsite, self).write(vals)
 
     @api.onchange('zip')
