@@ -102,7 +102,7 @@ class Jobsite(models.Model):
         return False
 
     @api.model
-    def sendJobsiteToBeta(self, vals,is_create):
+    def sendJobsiteToBeta(self, vals):
         if not self.env['ir.config_parameter'].sudo().get_param('ym_configs.save_jobsite'):
             return
 
@@ -111,18 +111,12 @@ class Jobsite(models.Model):
             addr = str(vals['street'] + " " + vals['street2'])
         else:
             addr = str(vals['street'])
-        if is_create:
-            godown_id_cal = vals['godown_id']
-            user_id_cal = vals['user_id']
-            siteteam_cal = vals['siteteam']
-            stage_id_cal = vals['stage_id']
-            site_name_cal = vals['name']
-        else:
-            godown_id_cal = self.godown_id.id
-            user_id_cal = self.user_id.id
-            siteteam_cal = self.siteteam.id
-            stage_id_cal = self.stage_id.id
-            site_name_cal = self.name
+
+        godown_id_cal = vals['godown_id'] if 'godown_id' in vals else self.godown_id.id
+        user_id_cal = vals['user_id'] if 'user_id' in vals else self.user_id.id
+        siteteam_cal = vals['siteteam'] if 'siteteam' in vals else self.siteteam.id
+        stage_id_cal = vals['stage_id'] if 'stage_id' in vals else self.stage_id.id
+        site_name_cal = vals['name'] if 'name' in vals else self.name
 
         try:
             if godown_id_cal:
@@ -167,11 +161,10 @@ class Jobsite(models.Model):
 
     @api.model_create_multi
     def create(self, vals):
-        is_create = True
         for i in range(len(vals)):
             _logger.info("Create: " + str(vals[i]))
             vals[i] = self._setLatitudeLogitude(vals[i])
-            self.sendJobsiteToBeta(vals[i],is_create)
+            self.sendJobsiteToBeta(vals[i])
         return super(Jobsite, self).create(vals)
 
     def write(self, vals):
@@ -180,7 +173,7 @@ class Jobsite(models.Model):
         if 'street' in vals or 'street2' in vals or 'zip' in vals or 'city' in vals or 'state_id' in vals:
             vals['latitude'] = data['latitude']
             vals['longitude'] = data['longitude']
-        self.sendJobsiteToBeta(data,False)
+        self.sendJobsiteToBeta(data)
         return super(Jobsite, self).write(vals)
 
     @api.onchange('zip')
