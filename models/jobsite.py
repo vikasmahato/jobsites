@@ -125,7 +125,7 @@ class Jobsite(models.Model):
             site_name_cal = self.name
 
         try:
-            if self.godown_id.id:
+            if godown_id_cal:
                 godown_name = self.env['jobsite.godown'].search([('id','=',godown_id_cal)]).name
             else:
                 godown_name = False
