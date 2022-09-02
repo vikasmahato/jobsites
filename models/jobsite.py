@@ -40,20 +40,10 @@ class Jobsite(models.Model):
     siteteam = fields.Many2one(comodel_name='crm.team', string='Site Type')
     vl_date = fields.Date('VL Date', help="Visit Lead Due Date (VL Date)")
     godown_id = fields.Many2one('jobsite.godown')
-    status = fields.Selection([
-        ('Virgin', 'Virgin'),
-        ('Active', 'Active'),
-        ('Closed', 'Closed'),
-    ], string="Status",
-        required=True, default='Virgin')
+
 
     active = fields.Boolean(string='isActive', default=True, tracking=True)
 
-    status = fields.Selection([
-        ('0', 'ACTIVE'),
-        ('1', 'CLOSED'),
-        ('2', 'VIRGIN'),
-    ], string='Status')
 
     street = fields.Char(required=True)
     street2 = fields.Char()
@@ -116,12 +106,18 @@ class Jobsite(models.Model):
         if not self.env['ir.config_parameter'].sudo().get_param('ym_configs.save_jobsite'):
             return
 
+        _logger.info("sendJobsiteToBeta: " + str(vals))
         if vals['street2']:
             addr = str(vals['street'] + " " + vals['street2'])
         else:
             addr = str(vals['street'])
 
         try:
+            if vals['godown_id']:
+                godown_name = self.env['jobsite.godown'].search([('id','=',vals['godown_id'])]).name
+            else:
+                godown_name = False
+
             data = {
                 "site_name": vals['name'],
                 "site_address": addr,
@@ -132,16 +128,16 @@ class Jobsite(models.Model):
                 "td_email": str(self.env['res.users'].search([('id', 'ilike', vals['user_id'])], limit=1).email),
                 "site_type": str(self.env['crm.team'].search([('id', 'ilike', vals['siteteam'])], limit=1).name),
                 "site_stage": str(self.env['jobsite_stage'].search([('id', 'ilike', vals['stage_id'])], limit=1).name),
-                "branch_name": str(
-                    self.env['jobsite.godown'].search([('id', 'ilike', vals['godown_id'][0][2][0])], limit=1).name)
+                "branch_name": str(godown_name)
             }
             request_url = self.env['ir.config_parameter'].sudo().get_param('ym_configs.jobsite_endpoint')
             headers = {
                 'Content-type': 'application/json',
             }
+            _logger.info("request url: " + request_url + " data: " + json.dumps(data))
             requests.post(request_url, data=json.dumps(data), headers=headers, verify=False)
         except Exception:
-            traceback.format_exc()
+            _logger.error(traceback.format_exc())
 
     def _setLatitudeLogitude(self, vals, is_update=False):
         if is_update:
@@ -159,13 +155,14 @@ class Jobsite(models.Model):
 
     @api.model_create_multi
     def create(self, vals):
-        _logger.info("Write")
-        vals = self._setLatitudeLogitude(vals)
-        self.sendJobsiteToBeta(vals)
+        for i in range(len(vals)):
+            _logger.info("Create: " + str(vals[i]))
+            vals[i] = self._setLatitudeLogitude(vals[i])
+            self.sendJobsiteToBeta(vals[i])
         return super(Jobsite, self).create(vals)
 
     def write(self, vals):
-        _logger.info("Write")
+        _logger.info("Write: " + str(vals))
         data = self._setLatitudeLogitude(vals, True)
         if 'street' in vals or 'street2' in vals or 'zip' in vals or 'city' in vals or 'state_id' in vals:
             vals['latitude'] = data['latitude']
