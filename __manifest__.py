@@ -16,7 +16,7 @@
         'security/ir.model.access.csv',
         'views/menu.xml',
         'views/jobsite_list.xml',
-        'views/jobsite_iwm.xml',
+        # 'views/jobsite_iwm.xml',
         'views/jobsite.xml',
         'views/jobsite_lead.xml',
         'views/jobsite_map.xml',

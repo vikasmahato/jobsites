@@ -37,13 +37,13 @@
 						</div>
 						<group>
 							<field name="active" invisible="1"/>
-							<field name="status" invisible="1"/>
+
 
 							<group>
 								<field name="name"/>
 								<field name="siteteam" domain="[('name', 'in', ['GENERAL', 'IW', 'FR', 'B&amp;F', 'TRANSPORT'])]" options="{'no_create': True}"/>
 								<field name="stage_id" options="{'no_create': True}"/>
-								<field name="status"/>
+
 								<field name="vl_date"/>
 								<field name="godown_id" force_save = "1" attrs="{'invisible': [('zip', '=', False)], 'readonly': [('zip', '!=', False)]}"/>
 								<field name="user_id" attrs="{'invisible': [('siteteam', '=', False)]}" options="{'no_create': True}"/>
@@ -97,7 +97,6 @@
 					<filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"></filter>
 					<group expand="0" string="Group By">
 						<filter string="Team" name="group_by_type" context="{'group_by':'siteteam'}"></filter>
-						<filter string="Status" name="group_by_status" context="{'group_by':'siteteam'}"></filter>
 					</group>
 				</search>
 			</field>

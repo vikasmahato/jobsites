@@ -15,10 +15,5 @@
         </field>
     </record>
 
-<!--    <menuitem id="menu_iwm_jobsite_details"-->
-<!--        name="IWM"-->
-<!--        action="jobsite_iwm_listing_action"-->
-<!--        parent="menu_jobsite_sites"-->
-<!--        sequence="1"/>-->
 
 </odoo>
