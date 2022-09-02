@@ -102,7 +102,7 @@ class Jobsite(models.Model):
         return False
 
     @api.model
-    def sendJobsiteToBeta(self, vals):
+    def sendJobsiteToBeta(self, vals,is_create):
         if not self.env['ir.config_parameter'].sudo().get_param('ym_configs.save_jobsite'):
             return
 
@@ -111,23 +111,35 @@ class Jobsite(models.Model):
             addr = str(vals['street'] + " " + vals['street2'])
         else:
             addr = str(vals['street'])
+        if is_create:
+            godown_id_cal = vals['godown_id']
+            user_id_cal = vals['user_id']
+            siteteam_cal = vals['siteteam']
+            stage_id_cal = vals['stage_id']
+            site_name_cal = vals['name']
+        else:
+            godown_id_cal = self.godown_id.id
+            user_id_cal = self.user_id.id
+            siteteam_cal = self.siteteam.id
+            stage_id_cal = self.stage_id.id
+            site_name_cal = self.name
 
         try:
-            if vals['godown_id']:
-                godown_name = self.env['jobsite.godown'].search([('id','=',vals['godown_id'])]).name
+            if self.godown_id.id:
+                godown_name = self.env['jobsite.godown'].search([('id','=',godown_id_cal)]).name
             else:
                 godown_name = False
 
             data = {
-                "site_name": vals['name'],
+                "site_name": site_name_cal,
                 "site_address": addr,
                 "latitude": str(vals['latitude']),
                 "longitude": str(vals['longitude']),
                 "city": str(vals['city']),
                 "pincode": str(vals['zip']),
-                "td_email": str(self.env['res.users'].search([('id', 'ilike', vals['user_id'])], limit=1).email),
-                "site_type": str(self.env['crm.team'].search([('id', 'ilike', vals['siteteam'])], limit=1).name),
-                "site_stage": str(self.env['jobsite_stage'].search([('id', 'ilike', vals['stage_id'])], limit=1).name),
+                "td_email": str(self.env['res.users'].search([('id', 'ilike', user_id_cal)], limit=1).email),
+                "site_type": str(self.env['crm.team'].search([('id', 'ilike', siteteam_cal)], limit=1).name),
+                "site_stage": str(self.env['jobsite_stage'].search([('id', 'ilike',stage_id_cal )], limit=1).name),
                 "branch_name": str(godown_name)
             }
             request_url = self.env['ir.config_parameter'].sudo().get_param('ym_configs.jobsite_endpoint')
@@ -155,10 +167,11 @@ class Jobsite(models.Model):
 
     @api.model_create_multi
     def create(self, vals):
+        is_create = True
         for i in range(len(vals)):
             _logger.info("Create: " + str(vals[i]))
             vals[i] = self._setLatitudeLogitude(vals[i])
-            self.sendJobsiteToBeta(vals[i])
+            self.sendJobsiteToBeta(vals[i],is_create)
         return super(Jobsite, self).create(vals)
 
     def write(self, vals):
@@ -167,7 +180,7 @@ class Jobsite(models.Model):
         if 'street' in vals or 'street2' in vals or 'zip' in vals or 'city' in vals or 'state_id' in vals:
             vals['latitude'] = data['latitude']
             vals['longitude'] = data['longitude']
-        self.sendJobsiteToBeta(data)
+        self.sendJobsiteToBeta(data,False)
         return super(Jobsite, self).write(vals)
 
     @api.onchange('zip')
