@@ -10,7 +10,7 @@
                 <field name="longitude"/>
                 <field name="name"/>
                 <field name="siteteam"/>
-                <field name="status"/>
+
                 <field name="user_id"/>
                 <templates>
                     <t t-name="kanban-box">
@@ -22,12 +22,7 @@
                                 <field name="siteteam"/>
                             </div>
                             <div class="o_kanban_record_bottom">
-                                <div class="oe_kanban_bottom_left">
-                                    <field name="status" widget="priority"/>
-<!--                                    <div class="o_kanban_inline_block">-->
-<!--                                        <field name="activity_ids" widget="kanban_activity"/>-->
-<!--                                    </div>-->
-                                </div>
+
                                 <div class="oe_kanban_bottom_right">
                                     <field name="user_id" widget="many2one_avatar_user"/>
                                 </div>
