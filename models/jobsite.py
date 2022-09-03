@@ -173,7 +173,7 @@ class Jobsite(models.Model):
         if 'street' in vals or 'street2' in vals or 'zip' in vals or 'city' in vals or 'state_id' in vals:
             vals['latitude'] = data['latitude']
             vals['longitude'] = data['longitude']
-        self.sendJobsiteToBeta(data)
+        self.sendJobsiteToBeta(vals)
         return super(Jobsite, self).write(vals)
 
     @api.onchange('zip')
