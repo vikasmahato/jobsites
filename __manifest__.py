@@ -4,7 +4,7 @@
 
 {
     'name': 'JobSite',
-    'version': '3.0',
+    'version': '4.0',
     'category': 'Sales/CRM',
     'summary': 'A pool of new opportunities',
     'sequence': -100,
@@ -15,10 +15,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/menu.xml',
-        'views/jobsite_list.xml',
-        # 'views/jobsite_iwm.xml',
         'views/jobsite.xml',
-        'views/jobsite_lead.xml',
         'views/jobsite_map.xml',
     ],
     'demo': [
