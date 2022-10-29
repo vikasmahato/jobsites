@@ -19,14 +19,6 @@
 			<field name="act_window_id" ref="jobsite_listing_action"/>
 		</record>
 
-<!--	<record id="view_jobsite_map" model="ir.ui.view">-->
-<!--			<field name="model">jobsite</field>-->
-<!--			<field name="name">jobsite.map</field>-->
-<!--			<field name="arch" type="xml">-->
-<!--				<map jobsite="id"/>-->
-<!--			</field>-->
-<!--		</record>-->
-
 		<record id="view_jobsite_create_form" model="ir.ui.view">
 			<field name="model">jobsite</field>
 			<field name="name">jobsite.form</field>
@@ -88,11 +80,10 @@
 			<field name="arch" type="xml">
 				<search>
 					<field name="name" filter_domain="[('name', 'ilike', self)]"></field>
-					<filter name="filter_IW" string="IWM" domain="[('siteteam', '=', 'IWM')]"></filter>
-					<filter name="filter_T" string="Transport" domain="[('siteteam', '=', 'T')]"></filter>
-					<filter name="filter_FR" string="FR" domain="[('siteteam', '=', 'FR')]"></filter>
-					<filter name="filter_General" string="General" domain="[('siteteam', '=', 'General')]"></filter>
-<!--					<filter name="filter_BF" string="B&ampF" domain="[('siteteam', '=', 'B&ampF')]"></filter>-->
+					<filter name="filter_General" string="GENERAL" domain="[('siteteam', '=', 'GENERAL')]"></filter>
+					<filter name="filter_T" string="TRANSPORT" domain="[('siteteam', '=', 'TRANSPORT')]"></filter>
+					<filter name="filter_IW" string="IW" domain="[('siteteam', '=', 'IW')]"></filter>
+					<filter name="filter_BF" string="B&amp;F" domain="[('siteteam', '=', 'B&amp;F')]"></filter>
 					<separator/>
 					<filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"></filter>
 					<group expand="0" string="Group By">
