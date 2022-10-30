@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
-
 
 {
     'name': 'JobSite',
     'version': '4.0',
     'category': 'Sales/CRM',
-    'summary': 'A pool of new opportunities',
-    'sequence': -100,
+    'summary': 'It is an entity of location type which generates new leads.',
     'description': """
         It is an entity of location type which generates new leads.
     """,
+    'author': "Ajay",
+    'website': "https://www.youngman.co.in/",
+    'sequence': -100,
+
     'depends': ['mail', 'crm', 'web_google_maps'],
+
     'data': [
         'security/ir.model.access.csv',
         'views/menu.xml',
         'views/jobsite.xml',
         'views/jobsite_map.xml',
     ],
-    'demo': [
-    ],
+
     'application': True,
     'installable': True,
     'auto_install': False,
-    'assets': {},
 }

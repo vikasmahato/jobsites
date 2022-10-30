@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
     <menuitem id="menu_jobsite"
         name="Jobsite"
         action="jobsite_listing_action"
-        web_icon="jobsites,static/description/icon.png"
         sequence="0"/>
-
 </odoo>
