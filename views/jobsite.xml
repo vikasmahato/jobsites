@@ -19,6 +19,14 @@
 			<field name="act_window_id" ref="jobsite_listing_action"/>
 		</record>
 
+<!--	<record id="view_jobsite_map" model="ir.ui.view">-->
+<!--			<field name="model">jobsite</field>-->
+<!--			<field name="name">jobsite.map</field>-->
+<!--			<field name="arch" type="xml">-->
+<!--				<map jobsite="id"/>-->
+<!--			</field>-->
+<!--		</record>-->
+
 		<record id="view_jobsite_create_form" model="ir.ui.view">
 			<field name="model">jobsite</field>
 			<field name="name">jobsite.form</field>

@@ -17,6 +17,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/menu.xml',
+        'views/jobsite_list.xml',
         'views/jobsite.xml',
         'views/jobsite_map.xml',
     ],
