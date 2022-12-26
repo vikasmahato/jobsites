@@ -2,7 +2,7 @@
 <odoo>
     <menuitem id="menu_jobsite"
         name="Jobsite"
-        web_icon="jobsites,static/description/icon.png"
+        web_icon="jobsites/static/description/icon.png"
         sequence="0"/>
 
     <menuitem id="menu_jobsite_sites"
