@@ -1,1 +1,2 @@
-security/ir.model.access.csv
+__pycache__/
+models/__pycache__/

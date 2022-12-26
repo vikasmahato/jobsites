@@ -18,7 +18,9 @@ class JobsiteGodown(models.Model):
     name = fields.Char(string="Name")
     state_code = fields.Integer(string="State Code")
     address = fields.Char(string="Godown Address")
-    jobsite_id = fields.One2many('jobsite', 'godown_id', string='Jobsite')
+    email = fields.Char(string="Email")
+    phone = fields.Char(string="Mobile")
+    gstn = fields.Char(string="GSTN")
     beta_id = fields.Integer()
 
 
