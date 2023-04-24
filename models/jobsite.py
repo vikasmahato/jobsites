@@ -5,6 +5,9 @@ import requests
 import logging
 import json
 
+
+from odoo.exceptions import UserError
+
 _logger = logging.getLogger(__name__)
 
 
@@ -103,22 +106,21 @@ class Jobsite(models.Model):
             return result
         return False
 
-    @api.model
-    def sendJobsiteToBeta(self, vals):
+    def sendJobsiteToBeta(self):
         if not self.env['ir.config_parameter'].sudo().get_param('ym_configs.save_jobsite'):
             return
 
-        _logger.info("sendJobsiteToBeta: " + str(vals))
-        if vals['street2']:
-            addr = str(vals['street'] + " " + vals['street2'])
+        _logger.info("sendJobsiteToBeta: " + str(self))
+        if self.street2:
+            addr = str(self.street + " " + self.street2)
         else:
-            addr = str(vals['street'])
+            addr = str(self.street)
 
-        godown_id_cal = vals['godown_id'] if 'godown_id' in vals else self.godown_id.id
-        user_id_cal = vals['user_id'] if 'user_id' in vals else self.user_id.id
-        siteteam_cal = vals['siteteam'] if 'siteteam' in vals else self.siteteam.id
-        stage_id_cal = vals['stage_id'] if 'stage_id' in vals else self.stage_id.id
-        site_name_cal = vals['name'] if 'name' in vals else self.name
+        godown_id_cal = self.godown_id.id
+        user_id_cal = self.user_id.id
+        siteteam_cal = self.siteteam.id
+        stage_id_cal = self.stage_id.id
+        site_name_cal = self.name
 
         try:
             if godown_id_cal:
@@ -127,25 +129,35 @@ class Jobsite(models.Model):
                 godown_name = False
 
             data = {
-                "site_name": site_name_cal,
-                "site_address": addr,
-                "latitude": str(vals['latitude']),
-                "longitude": str(vals['longitude']),
-                "city": str(vals['city']),
-                "pincode": str(vals['zip']),
-                "td_email": str(self.env['res.users'].search([('id', 'ilike', user_id_cal)], limit=1).email),
+                "site_name": str(site_name_cal),
+                "site_address": str(addr),
+                "latitude": str(self.latitude),
+                "longitude": str(self.longitude),
+                "city": str(self.city),
+                "pincode": str(self.zip),
+                "td_email": str(self.env['res.users'].search([('id', 'ilike', user_id_cal)], limit=1).login),
                 "site_type": str(self.env['crm.team'].search([('id', 'ilike', siteteam_cal)], limit=1).name),
                 "site_stage": str(self.env['jobsite_stage'].search([('id', 'ilike',stage_id_cal )], limit=1).name),
                 "branch_name": str(godown_name)
             }
+
             request_url = self.env['ir.config_parameter'].sudo().get_param('ym_configs.jobsite_endpoint')
             headers = {
                 'Content-type': 'application/json',
             }
             _logger.info("request url: " + request_url + " data: " + json.dumps(data))
-            requests.post(request_url, data=json.dumps(data), headers=headers, verify=False)
-        except Exception:
+
+            response=requests.post(request_url, data=json.dumps(data), headers=headers, verify=False)
+            response.raise_for_status()
+
+            if response.ok:
+                response_data = response.json()
+                if response_data.get('status') == 'error':
+                    raise UserError(_(response_data.get('message')))
+
+        except Exception as e:
             _logger.error(traceback.format_exc())
+            raise UserError(_(e))
 
     def _setLatitudeLogitude(self, vals, is_update=False):
         if is_update:
@@ -166,7 +178,7 @@ class Jobsite(models.Model):
         for i in range(len(vals)):
             _logger.info("Create: " + str(vals[i]))
             vals[i] = self._setLatitudeLogitude(vals[i])
-            self.sendJobsiteToBeta(vals[i])
+            # self.sendJobsiteToBeta(vals[i])
         return super(Jobsite, self).create(vals)
 
     def write(self, vals):
@@ -175,7 +187,7 @@ class Jobsite(models.Model):
         if 'street' in vals or 'street2' in vals or 'zip' in vals or 'city' in vals or 'state_id' in vals:
             vals['latitude'] = data['latitude']
             vals['longitude'] = data['longitude']
-        self.sendJobsiteToBeta(vals)
+        # self.sendJobsiteToBeta(vals)
         return super(Jobsite, self).write(vals)
 
     @api.onchange('zip')
