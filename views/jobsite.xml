@@ -32,6 +32,9 @@
 			<field name="name">jobsite.form</field>
 			<field name="arch" type="xml">
 				<form>
+					<header>
+						<button name ="sendJobsiteToBeta" string="SEND JOBSITE TO BETA" type="object" class="oe_highlight"/>
+					</header>
 					<sheet>
 						<div class="oe_button_box" name="button_box">
 						</div>
