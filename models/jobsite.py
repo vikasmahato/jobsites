@@ -63,6 +63,13 @@ class Jobsite(models.Model):
     longitude = fields.Float(string='Geo Longitude', digits=(20, 14))
     marker_color = fields.Char(string='Marker Color', default='red', required=True)
 
+    running_order_count = fields.Integer(string='TOTAL ORDERS',compute='_compute_running_order_count')
+
+    def _compute_running_order_count(self):
+        for record in self:
+            running_order_count = self.env['jobsite'].fetch_running_order(record)
+            record.running_order_count = running_order_count
+
     @api.onchange('siteteam')
     def _get_domain(self):
         if self.siteteam:
@@ -189,6 +196,10 @@ class Jobsite(models.Model):
             vals['longitude'] = data['longitude']
         # self.sendJobsiteToBeta(vals)
         return super(Jobsite, self).write(vals)
+
+    def get_running_order(self, vals):
+        if 'running_order_count' not in vals:
+            vals['running_order_count'] = self.env['jobsite'].fetch_running_order(self)
 
     @api.onchange('zip')
     def sendToBeta(self):
