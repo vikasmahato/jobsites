@@ -8,6 +8,7 @@
 				<tree>
 					<field name="name"/>
 					<field name="siteteam"/>
+					<field name='running_order_count'/>
 				</tree>
 			</field>
 		</record>

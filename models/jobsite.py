@@ -63,7 +63,7 @@ class Jobsite(models.Model):
     longitude = fields.Float(string='Geo Longitude', digits=(20, 14))
     marker_color = fields.Char(string='Marker Color', default='red', required=True)
 
-    running_order_count = fields.Integer(string='TOTAL ORDERS',compute='_compute_running_order_count')
+    running_order_count = fields.Integer(string='Active Orders',compute='_compute_running_order_count',store='True')
 
     def _compute_running_order_count(self):
         for record in self:
