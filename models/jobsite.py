@@ -61,14 +61,9 @@ class Jobsite(models.Model):
     stage_id = fields.Many2one("jobsite_stage", string="Stage")
     latitude = fields.Float(string='Geo Latitude', digits=(20, 14))
     longitude = fields.Float(string='Geo Longitude', digits=(20, 14))
-    marker_color = fields.Char(string='Marker Color', default='red', required=True)
+    marker_color = fields.Char(string='Marker Color',default='black', required=True)
 
-    running_order_count = fields.Integer(string='Active Orders',compute='_compute_running_order_count',store='True')
 
-    def _compute_running_order_count(self):
-        for record in self:
-            running_order_count = self.env['jobsite'].fetch_running_order(record)
-            record.running_order_count = running_order_count
 
     @api.onchange('siteteam')
     def _get_domain(self):
