@@ -25,6 +25,8 @@ class JobsiteGodown(models.Model):
     phone = fields.Char(string="Mobile")
     gstn = fields.Char(string="GSTN")
     beta_id = fields.Integer()
+    pincode = fields.Integer(string="Pincode")
+
 
 
 class Jobsite(models.Model):
